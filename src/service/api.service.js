@@ -1,7 +1,7 @@
 import CryptoJS from "crypto-js";
 import axios from "axios";
 
-const url = "http://api.valantis.store:40000/";
+const url = "https://api.valantis.store:41000/";
 // eslint-disable-next-line no-undef
 const parol = import.meta.env.REACT_APP_API_KEY || process?.env?.REACT_APP_API_KEY;
 const timestamp = new Date().toISOString().split("T")[0].replace(/-/g, "");
