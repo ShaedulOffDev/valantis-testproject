@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { getIds, getProducts } from "./service/api.service";
-import ProductCard from "./components/productCard";
-import Pagination from "./components/pagination";
-import Filter from "./components/filter";
 import { motion } from "framer-motion";
+import { Filter, Pagination, Error, ProductCard, Loader } from "./components";
 
 const App = () => {
   const [products, setProducts] = useState(null);
@@ -13,22 +11,13 @@ const App = () => {
   const [sortedIds, setSortedIds] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchKeys, setSearchKeys] = useState({ ctg: "brand", key: "" });
+  
   useEffect(() => {
     setLoading(true);
     if (sortedIds == null) {
       getIds(offset)
-        .then(async (res) => {
-          const response = await getProducts(res.result);
-          const uniqueIds = [];
-          const uniqueItems = [];
-          response.result.filter((p) => {
-            if (uniqueIds.indexOf(p.id) == -1) {
-              uniqueItems.push(p);
-              uniqueIds.push(p.id);
-            }
-          });
-          setProducts(uniqueItems);
-          setLoading(false);
+        .then((res) => {
+          getProductsHandler(res.result)
         })
         .catch((error) => {
           console.error(error);
@@ -37,46 +26,33 @@ const App = () => {
         });
     } else {
       if (sortedIds.length > 50) {
-        getProducts(sortedIds.slice(offset * 50, offset * 50 + 50))
-          .then((res) => {
-            const uniqueIds = [];
-            const uniqueItems = [];
-            res.result.filter((p) => {
-              if (uniqueIds.indexOf(p.id) == -1) {
-                uniqueItems.push(p);
-                uniqueIds.push(p.id);
-              }
-            });
-            setProducts(uniqueItems);
-            setLoading(false);
-          })
-          .catch((error) => {
-            console.error(error);
-            setLoading(false);
-            setError(error.message);
-          });
+        getProductsHandler(sortedIds.slice(offset * 50, offset * 50 + 50))
       } else {
-        getProducts(sortedIds)
-          .then((res) => {
-            const uniqueIds = [];
-            const uniqueItems = [];
-            res.result.filter((p) => {
-              if (uniqueIds.indexOf(p.id) == -1) {
-                uniqueItems.push(p);
-                uniqueIds.push(p.id);
-              }
-            });
-            setProducts(uniqueItems);
-            setLoading(false);
-          })
-          .catch((error) => {
-            console.error(error);
-            setLoading(false);
-            setError(error.message);
-          });
+        getProductsHandler(sortedIds)
       }
     }
   }, [offset, sortedIds]);
+  
+  const getProductsHandler = (ids) => {
+    getProducts(ids)
+      .then((res) => {
+        const uniqueIds = [];
+        const uniqueItems = [];
+        res.result.filter((p) => {
+          if (uniqueIds.indexOf(p.id) == -1) {
+            uniqueItems.push(p);
+            uniqueIds.push(p.id);
+          }
+        });
+        setProducts(uniqueItems);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        setLoading(false);
+        setError(error.message);
+      });
+  };
 
   const offsetHandler = (n) => {
     setOffset(n);
@@ -85,31 +61,12 @@ const App = () => {
     setLoading(true);
   };
 
-  if (loading) {
-    return (
-      <div className="text-center text-3xl pt-10 border-t-4 border-yellow-500">
-        <i className="fa fa-circle-notch fa-spin"></i>
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="text-center text-3xl pt-10 border-t-4 border-red-500">
-        <p>{error}</p>
-        <p className="text-2xl">Пожалуйста, повторите попытку позже</p>
-        <button
-          onClick={() => location.reload()}
-          className="mt-4 border rounded-md text-[18px] border-red-500  px-5 hover:bg-red-500 hover:text-white transition-all py-[2px] text-red-500"
-        >
-          Обновить
-        </button>
-      </div>
-    );
-  }
+  if (loading) return <Loader />;
+
+  if (error) return <Error error={error} />;
+
   const searchKeysHandler = (ctg) => {
     switch (ctg) {
-      case "brand":
-        return "бренда";
       case "product":
         return "имени";
       case "price":
@@ -118,6 +75,7 @@ const App = () => {
         return "бренда";
     }
   };
+
   return (
     <div className="border-t-4 border-blue-500 pt-5 overflow-x-hidden">
       <div className="py-5 container mx-auto px-2">
@@ -147,6 +105,9 @@ const App = () => {
             <strong>{searchKeys.key}</strong>
           </p>
         )}
+
+        {/* Products */}
+
         <div className="h-full w-full grid grid-cols-4 gap-3 max-[1024px]:grid-cols-3 max-[768px]:grid-cols-2 max-[500px]:grid-cols-1">
           {products && products.map((product) => <ProductCard key={product.id} product={product} />)}
         </div>
@@ -154,9 +115,13 @@ const App = () => {
           <div className="text-center py-10 text-5xl text-gray-400">Ничего не найдено</div>
         )}
       </div>
+
+      {/* Pagination */}
       {products?.length >= (sortedIds == null ? 10 : 50) && (
         <Pagination offsetHandler={offsetHandler} offset={offset} />
       )}
+
+      {/* Filter */}
       <Filter
         setSortedIds={setSortedIds}
         setLoading={setLoading}

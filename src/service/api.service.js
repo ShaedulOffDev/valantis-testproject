@@ -1,12 +1,17 @@
 import CryptoJS from "crypto-js";
 import axios from "axios";
 
-const url = "https://api.valantis.store:41000/";
+// API url
+// eslint-disable-next-line no-undef
+const url = import.meta.env.REACT_APP_API_URL || process?.env?.REACT_APP_API_URL;
+
+// API Key
 // eslint-disable-next-line no-undef
 const parol = import.meta.env.REACT_APP_API_KEY || process?.env?.REACT_APP_API_KEY;
 const timestamp = new Date().toISOString().split("T")[0].replace(/-/g, "");
 const authString = `${parol}_${timestamp}`;
 
+// Get Ids API
 export const getIds = async (offset) => {
   const xAuth = CryptoJS.MD5(authString).toString(CryptoJS.enc.Hex);
   const body = {
@@ -21,6 +26,7 @@ export const getIds = async (offset) => {
   return response.data;
 };
 
+// Get Products API
 export const getProducts = async (ids) => {
   const xAuth = CryptoJS.MD5(authString).toString(CryptoJS.enc.Hex);
   const body = {
@@ -35,6 +41,7 @@ export const getProducts = async (ids) => {
   return response.data;
 };
 
+// Filter API
 export const getSortedIds = async (searchFor, searchVal) => {
   const xAuth = CryptoJS.MD5(authString).toString(CryptoJS.enc.Hex);
   let k = searchVal
@@ -53,7 +60,8 @@ export const getSortedIds = async (searchFor, searchVal) => {
   return response.data;
 };
 
-export const getField = async (field) => {
+// Get Fields API
+export const getFields = async (field) => {
   const xAuth = CryptoJS.MD5(authString).toString(CryptoJS.enc.Hex);
   const body = {
     action: "get_fields",

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { getField, getSortedIds } from "../service/api.service";
+import { getFields, getSortedIds } from "../service/api.service";
 import PropTypes from 'prop-types';
 import { useState } from "react";
 
@@ -29,7 +29,7 @@ const Filter = ({
     e.preventDefault();
     if (searchVal != "") {
       setLoading(true);
-      await getField(searchFor)
+      await getFields(searchFor)
         .then((res) => {
           let k = searchVal;
           if (searchFor == "brand") {

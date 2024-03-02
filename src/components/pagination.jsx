@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-const Pagination = ({offsetHandler, offset}) => {
+const Pagination = ({ offsetHandler, offset }) => {
   Pagination.propTypes = {
     offsetHandler: PropTypes.func.isRequired,
     offset: PropTypes.number.isRequired,

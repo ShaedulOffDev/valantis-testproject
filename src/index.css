@@ -8,3 +8,11 @@ html{
 body{
   background: #ddd;
 }
+*::-webkit-scrollbar{
+  background: #c2c2c2;
+  width: 5px;
+}
+*::-webkit-scrollbar-thumb{
+  background: #222;
+  border-radius: 5px;
+}
